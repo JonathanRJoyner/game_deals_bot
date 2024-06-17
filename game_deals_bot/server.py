@@ -9,12 +9,14 @@ PORT = int(os.getenv('PORT', 8080))
 
 
 # Webhook server setup
-async def handle_vote(request, bot):
+async def handle_vote(request, bot: commands.Bot):
     data = await request.json()
     user_id = data.get('user')
+    print(user_id)
     
     if user_id:
         channel = bot.get_channel(VOTE_CHANNEL_ID)
+        print(channel.id)
         if channel:
             await channel.send(f"User <@{user_id}> has voted for the bot on top.gg! 🎉")
         return web.Response(status=200, text="Vote received")
