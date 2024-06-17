@@ -5,6 +5,7 @@ from ui.embeds import price_overview_embed
 from dotenv import load_dotenv
 import os
 import aiohttp
+import asyncio
 from server import run_webhook
 
 load_dotenv()
@@ -88,4 +89,6 @@ async def update_top_gg_server_count(bot: commands):
 
 @tasks.loop(count=1)
 async def webhook_server():
-    await run_webhook()
+    loop = asyncio.get_event_loop()
+    loop.create_task(run_webhook())
+    loop.run_forever()
