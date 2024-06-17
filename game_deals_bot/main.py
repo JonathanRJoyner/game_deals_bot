@@ -26,7 +26,6 @@ async def on_ready():
   bot_tasks.check_alerts.start(bot)
   bot_tasks.update_server_count.start(bot)
   bot_tasks.update_top_gg_server_count.start(bot)
-  bot.loop.create_task(server.run_webhook(bot))
   
   print(f'Logged in as {bot.user}')
 
@@ -91,6 +90,6 @@ if __name__ == '__main__':
     # Start the bot in a separate thread
     import threading
     threading.Thread(target=bot.run, args=(TOKEN,), daemon=True).start()
-    
+
     # Start the Flask app
     app.run(host='0.0.0.0', port=int(os.getenv('PORT', 8080)))

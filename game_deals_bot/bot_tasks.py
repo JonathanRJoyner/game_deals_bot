@@ -5,8 +5,6 @@ from ui.embeds import price_overview_embed
 from dotenv import load_dotenv
 import os
 import aiohttp
-import asyncio
-from server import run_webhook
 
 load_dotenv()
 SERVER_COUNT_CHANNEL = os.getenv('SERVER_COUNT_CHANNEL')
