@@ -4,6 +4,7 @@ import os
 
 load_dotenv()
 VOTE_CHANNEL_ID = os.getenv('VOTE_CHANNEL_ID')
+PORT = int(os.getenv('PORT', 8080))
 
 
 # Webhook server setup
@@ -25,7 +26,7 @@ async def run_webhook():
     app.router.add_post('/webhook', handle_vote)
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, host='0.0.0.0', port=8080)
+    site = web.TCPSite(runner, host='0.0.0.0', port=PORT)
     await site.start()
     print('Webhook server running')
     
