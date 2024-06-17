@@ -7,7 +7,7 @@ from discord.ext import commands
 
 load_dotenv()
 VOTE_CHANNEL_ID = int(os.getenv('VOTE_CHANNEL_ID'))
-TOPGG_AUTH_TOKEN = int(os.getenv('TOPGG_AUTH_TOKEN'))
+TOPGG_AUTH_TOKEN = os.getenv('TOPGG_AUTH_TOKEN')
 PORT = int(os.getenv('PORT', 8080))
 
 app = Flask(__name__)
