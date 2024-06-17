@@ -1,12 +1,11 @@
 import discord
 import api_calls as api_calls
 from database import fetch_alerts, delete_alert_row
-import game_deals_bot.ui.embeds as embeds
-import game_deals_bot.ui.views as views
+import ui.embeds as embeds
+import ui.views as views
 from dotenv import load_dotenv
 import bot_tasks
 import os
-import json
 
 load_dotenv()
 

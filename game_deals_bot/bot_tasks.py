@@ -1,7 +1,7 @@
 from database import fetch_rows_in_batches, delete_alert_row
 from discord.ext import tasks, commands
 from api_calls import fetch_game_price_overview
-from game_deals_bot.ui.embeds import price_overview_embed
+from ui.embeds import price_overview_embed
 from dotenv import load_dotenv
 import os
 import aiohttp

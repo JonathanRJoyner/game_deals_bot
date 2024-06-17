@@ -3,8 +3,8 @@ from discord.ui import Button, View
 import api_calls
 from models import price_history, price_overview, info
 from textwrap import dedent
-from modals import PriceAlertModal
-import graphs
+from ui.modals import PriceAlertModal
+import ui.graphs as graphs
 
 
 async def alert_callback(interaction: discord.Interaction, id: str, title: str):
