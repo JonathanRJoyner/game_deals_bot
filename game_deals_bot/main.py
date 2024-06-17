@@ -8,8 +8,11 @@ import bot_tasks
 import os
 import asyncio
 import server
+from flask import Flask, request, jsonify
 
 load_dotenv()
+
+app = Flask(__name__)
 
 TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 
@@ -84,5 +87,10 @@ async def delete_alert_command(
   )
 
 
-# Run the bot with your token
-bot.run(TOKEN)
+if __name__ == '__main__':
+    # Start the bot in a separate thread
+    import threading
+    threading.Thread(target=bot.run, args=(TOKEN,), daemon=True).start()
+    
+    # Start the Flask app
+    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 8080)))
