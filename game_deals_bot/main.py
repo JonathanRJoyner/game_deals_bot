@@ -6,6 +6,8 @@ import ui.views as views
 from dotenv import load_dotenv
 import bot_tasks
 import os
+import asyncio
+import server
 
 load_dotenv()
 
@@ -21,8 +23,7 @@ async def on_ready():
   bot_tasks.check_alerts.start(bot)
   bot_tasks.update_server_count.start(bot)
   bot_tasks.update_top_gg_server_count.start(bot)
-  if not bot_tasks.webhook_server.is_running():
-    bot_tasks.webhook_server.start()
+  asyncio.create_task(server.run_webhook())
 
   print(f'Logged in as {bot.user}')
 

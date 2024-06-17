@@ -28,5 +28,4 @@ async def run_webhook():
     await runner.setup()
     site = web.TCPSite(runner, host='0.0.0.0', port=PORT)
     await site.start()
-    print('Webhook server running')
-    
+    print(f"Webhook server running on port {PORT}")    

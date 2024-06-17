@@ -85,10 +85,3 @@ async def update_top_gg_server_count(bot: commands):
                 print("Successfully updated server count on top.gg")
             else:
                 print(f"Failed to update server count on top.gg: {response.status}")
-
-
-@tasks.loop(count=1)
-async def webhook_server():
-    loop = asyncio.get_event_loop()
-    loop.create_task(run_webhook())
-    loop.run_forever()
