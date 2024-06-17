@@ -67,16 +67,13 @@ async def update_top_gg_server_count(bot: commands):
     headers = {
         "Authorization": TOPGG_API_TOKEN,
         "Content-Type": "application/json"
-    }
-    
-    server_count = len(bot.guilds)
-    shard_count = bot.shard_count
+    }    
 
     payload = {
-        "server_count": server_count,
-        "shard_count": shard_count,
-        "shards": [bot.get_shard(i).id for i in range(shard_count)]
+        "server_count": int(len(bot.guilds)),
+        "shard_count": int(bot.shard_count),
     }
+    print(payload)
 
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers=headers, json=payload) as response:
