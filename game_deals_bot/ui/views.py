@@ -17,20 +17,19 @@ async def history_button_callback(interaction: discord.Interaction):
     data = await price_history.from_json(data)
     graph = await graphs.history_graph(data)
     file = discord.File(fp=graph, filename='graph.png')
-    
-    # Create an embed
-    embed = discord.Embed(
-        title="Price History",
-        description=f"Price history for item ID: {id}",
-        color=discord.Color.blue()
-    )
-    
-    # Set the image of the embed
-    embed.set_image(url="attachment://graph.png")
-    
-    # Send the embed with the file
-    await interaction.response.send_message(embed=embed, file=file)
 
+    # Retrieve the original embed
+    original_embed = interaction.message.embeds[0]
+
+    # Set the image of the original embed
+    original_embed.set_image(url="attachment://graph.png")
+
+    # Edit the original message with the updated embed
+    await interaction.message.edit(embed=original_embed)
+    
+    # Send the file separately
+    await interaction.followup.send(file=file)
+    
 
 async def more_info_callback(interaction: discord.Interaction, id: str):
     info_json = await api_calls.fetch_game_info(id)

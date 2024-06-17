@@ -13,5 +13,6 @@ heroku config:set DISCORD_BOT_TOKEN="$DISCORD_BOT_TOKEN" \
                   SUPABASE_KEY="$SUPABASE_KEY" \
                   SERVER_COUNT_CHANNEL="$SERVER_COUNT_CHANNEL" \
                   TOPGG_API_TOKEN="$TOPGG_API_TOKEN" \
+                  TOPGG_AUTH_TOKEN="$TOPGG_AUTH_TOKEN" \
                   VOTE_CHANNEL_ID="$VOTE_CHANNEL_ID" \
                   -a $HEROKU_APP_NAME

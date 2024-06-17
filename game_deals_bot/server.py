@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 from dotenv import load_dotenv
 import os
 import asyncio
@@ -7,6 +7,7 @@ from discord.ext import commands
 
 load_dotenv()
 VOTE_CHANNEL_ID = int(os.getenv('VOTE_CHANNEL_ID'))
+TOPGG_AUTH_TOKEN = int(os.getenv('TOPGG_AUTH_TOKEN'))
 PORT = int(os.getenv('PORT', 8080))
 
 app = Flask(__name__)
@@ -14,8 +15,12 @@ app = Flask(__name__)
 @app.route('/webhook', methods=['POST'])
 def webhook():
     bot = app.config['bot']
+    auth_header = request.headers.get('Authorization')
+
+    if auth_header != TOPGG_AUTH_TOKEN:
+        return abort(401)  # Unauthorized
+
     data = request.json
-    print(data)
     user_id = data.get('user')
     if user_id:
         channel = app.config['bot'].get_channel(VOTE_CHANNEL_ID)
@@ -25,7 +30,7 @@ def webhook():
     return jsonify({"status": "invalid data"}), 400
 
 async def send_message(channel, user_id):
-    await channel.send(f"User <@{user_id}> has voted for the bot on top.gg! 🎉")
+    await channel.send(f"<@{user_id}> voted for Game Deals on top.gg! 🎉")
 
 def run_server(bot: commands.Bot):
     import threading
