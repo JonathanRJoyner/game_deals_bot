@@ -1,6 +1,7 @@
 from aiohttp import web
 from dotenv import load_dotenv
 import os
+from discord.ext import commands
 
 load_dotenv()
 VOTE_CHANNEL_ID = os.getenv('VOTE_CHANNEL_ID')
@@ -8,8 +9,7 @@ PORT = int(os.getenv('PORT', 8080))
 
 
 # Webhook server setup
-async def handle_vote(request):
-    from main import bot
+async def handle_vote(request, bot):
     data = await request.json()
     user_id = data.get('user')
     
@@ -21,9 +21,9 @@ async def handle_vote(request):
     return web.Response(status=400, text="Invalid data")
 
 # Function to run the webhook server
-async def run_webhook():
+async def run_webhook(bot: commands.Bot):
     app = web.Application()
-    app.router.add_post('/webhook', handle_vote)
+    app.router.add_post('/webhook', lambda request: handle_vote(request, bot))
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, host='0.0.0.0', port=PORT)

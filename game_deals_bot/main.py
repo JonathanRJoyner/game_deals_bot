@@ -23,8 +23,8 @@ async def on_ready():
   bot_tasks.check_alerts.start(bot)
   bot_tasks.update_server_count.start(bot)
   bot_tasks.update_top_gg_server_count.start(bot)
-  asyncio.create_task(server.run_webhook())
-
+  bot.loop.create_task(server.run_webhook(bot))
+  
   print(f'Logged in as {bot.user}')
 
 
