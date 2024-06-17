@@ -7,10 +7,10 @@ import asyncio
 load_dotenv()
 VOTE_CHANNEL_ID = os.getenv('VOTE_CHANNEL_ID')
 
-# Webhook route
-@app.route('/webhook', methods=['POST'])
+# Webhook route for GET request
+@app.route('/webhook', methods=['GET'])
 def webhook():
-    data = request.json
+    data = request.args
     print(data)
     user_id = data.get('user')
     if user_id:
