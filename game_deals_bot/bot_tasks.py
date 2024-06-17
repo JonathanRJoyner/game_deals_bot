@@ -5,6 +5,7 @@ from ui.embeds import price_overview_embed
 from dotenv import load_dotenv
 import os
 import aiohttp
+import server
 
 load_dotenv()
 SERVER_COUNT_CHANNEL = os.getenv('SERVER_COUNT_CHANNEL')
@@ -83,3 +84,4 @@ async def update_top_gg_server_count(bot: commands):
                 print("Successfully updated server count on top.gg")
             else:
                 print(f"Failed to update server count on top.gg: {response.status}")
+                

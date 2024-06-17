@@ -6,15 +6,12 @@ import ui.views as views
 from dotenv import load_dotenv
 import bot_tasks
 import os
-import asyncio
-import server
-from flask import Flask, request, jsonify
+import threading
+from server import run_server
+
 
 load_dotenv()
-
-app = Flask(__name__)
-
-TOKEN = os.getenv('DISCORD_BOT_TOKEN')
+DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 
 # Initialize the bot
 bot = discord.AutoShardedBot()
@@ -87,9 +84,9 @@ async def delete_alert_command(
 
 
 if __name__ == '__main__':
-    # Start the bot in a separate thread
-    import threading
-    threading.Thread(target=bot.run, args=(TOKEN,), daemon=True).start()
+    # Start the Flask app in a separate thread and pass the bot instance to it
+    flask_thread = threading.Thread(target=run_server, args=(bot,))
+    flask_thread.start()
 
-    # Start the Flask app
-    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 8080)))
+    # Start the bot
+    bot.run(DISCORD_BOT_TOKEN)
