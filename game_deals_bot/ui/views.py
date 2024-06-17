@@ -24,11 +24,13 @@ async def history_button_callback(interaction: discord.Interaction):
     # Set the image of the original embed
     original_embed.set_image(url="attachment://graph.png")
 
-    # Edit the original message with the updated embed
-    await interaction.message.edit(embed=original_embed)
-    
-    # Send the file separately
-    await interaction.followup.send(file=file)
+    await interaction.response.defer()
+
+    # Edit the original message with the updated embed and file
+    await interaction.edit_original_response(
+        embed=original_embed, 
+        file=file
+    )
     
 
 async def more_info_callback(interaction: discord.Interaction, id: str):
@@ -109,7 +111,7 @@ async def more_info_callback(interaction: discord.Interaction, id: str):
         if isinstance(item, discord.ui.Button) and item.label == "More Info":
             item.disabled = True
 
-    await interaction.response.edit_message(embed=embed, view=view)
+    await interaction.response.edit_message(embed=embed, view=view, attachments=[])
 
 
 
