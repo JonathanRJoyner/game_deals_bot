@@ -11,6 +11,7 @@ VOTE_CHANNEL_ID = os.getenv('VOTE_CHANNEL_ID')
 @app.route('/webhook', methods=['POST'])
 def webhook():
     data = request.json
+    print(data)
     user_id = data.get('user')
     if user_id:
         channel = bot.get_channel(VOTE_CHANNEL_ID)
