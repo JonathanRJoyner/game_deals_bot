@@ -5,6 +5,7 @@ import io
 from typing import List
 from models.price_history import DealRecord
 from datetime import timedelta
+import copy
 
 async def history_graph(data: List[DealRecord]):
     plt.style.use('_mpl-gallery')
@@ -12,13 +13,17 @@ async def history_graph(data: List[DealRecord]):
     # Filter to the latest 3 months
     end_date = max(item.timestamp for item in data)
     start_date = end_date - timedelta(days=90)
-    filtered_data = [item for item in data if start_date <= item.timestamp <= end_date]
+
+    # Add starting point
+    start_point = copy.deepcopy(data[0])
+    start_point.timestamp = start_date
+    data.append(start_point)
 
     # Prepare data for plotting
-    timestamps = [item.timestamp for item in filtered_data]
-    prices = [item.deal.price.amount for item in filtered_data]
-    regular_prices = [item.deal.regular.amount for item in filtered_data]
-    currency = filtered_data[0].deal.price.currency if filtered_data else 'USD'
+    timestamps = [item.timestamp for item in data]
+    prices = [item.deal.price.amount for item in data]
+    regular_prices = [item.deal.regular.amount for item in data]
+    currency = data[0].deal.price.currency if data else 'USD'
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
