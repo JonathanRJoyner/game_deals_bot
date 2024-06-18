@@ -2,14 +2,8 @@ from database import fetch_rows_in_batches, delete_alert_row
 from discord.ext import tasks, commands
 from api_calls import fetch_game_price_overview
 from ui.embeds import price_overview_embed
-from dotenv import load_dotenv
-import os
 import aiohttp
-import server
 
-load_dotenv()
-SERVER_COUNT_CHANNEL = os.getenv('SERVER_COUNT_CHANNEL')
-TOPGG_API_TOKEN = os.getenv('TOPGG_API_TOKEN')
 
 
 @tasks.loop(hours=1)
@@ -50,8 +44,8 @@ async def check_alerts(bot: commands.Bot):
                     
 
 @tasks.loop(hours=6)
-async def update_server_count(bot: commands.Bot):
-    server_count_channel_id = int(os.getenv('SERVER_COUNT_CHANNEL'))
+async def update_server_count(bot: commands.Bot, server_count_channel: int):
+    server_count_channel_id = int(server_count_channel)
     server_count_channel = bot.get_channel(server_count_channel_id)
     if server_count_channel is None:
         print(f"Channel with ID {server_count_channel_id} not found.")
@@ -62,10 +56,10 @@ async def update_server_count(bot: commands.Bot):
 
 
 @tasks.loop(hours=6)
-async def update_top_gg_server_count(bot: commands):
+async def update_top_gg_server_count(bot: commands, topgg_api_token: str):
     url = f"https://top.gg/api/bots/{bot.user.id}/stats"
     headers = {
-        "Authorization": TOPGG_API_TOKEN,
+        "Authorization": topgg_api_token,
         "Content-Type": "application/json"
     }    
 

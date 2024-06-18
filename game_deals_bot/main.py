@@ -12,17 +12,41 @@ from server import run_server
 
 load_dotenv()
 DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
+SERVER_COUNT_CHANNEL = os.getenv('SERVER_COUNT_CHANNEL')
+TOPGG_API_TOKEN = os.getenv('TOPGG_API_TOKEN')
+LOG_CHANNEL_ID = os.getenv('LOG_CHANNEL_ID')
 
 # Initialize the bot
 bot = discord.AutoShardedBot()
+
+# Error logging
+if LOG_CHANNEL_ID:
+  @bot.event
+  async def on_application_command_error(ctx: discord.ApplicationContext, error):
+      log_channel = bot.get_channel(int(LOG_CHANNEL_ID))
+      await log_channel.send(f"""
+        User: {ctx.user.name} | 
+        Command/Button: {ctx.command.name} | 
+        Type: {ctx.interaction.type} | 
+        Variables: {ctx.interaction.data['options']} | 
+        Error: {error}
+        """
+      )
+
 
 @bot.event
 async def on_ready():
   
   # Starting up tasks
   bot_tasks.check_alerts.start(bot)
-  bot_tasks.update_server_count.start(bot)
-  bot_tasks.update_top_gg_server_count.start(bot)
+  
+  # Updating server count channel if it exists
+  if SERVER_COUNT_CHANNEL:
+    bot_tasks.update_server_count.start(bot, SERVER_COUNT_CHANNEL)
+  
+  # Updating topgg stats if api token exists
+  if TOPGG_API_TOKEN:
+    bot_tasks.update_top_gg_server_count.start(bot, TOPGG_API_TOKEN)
   
   print(f'Logged in as {bot.user}')
 
