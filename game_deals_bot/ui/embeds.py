@@ -2,6 +2,9 @@ import discord
 from textwrap import dedent
 import api_calls as api_calls
 from models import info, price_overview
+from typing import List
+import asyncio
+
 
 async def price_overview_embed(id: str) -> discord.Embed:
     price_json = await api_calls.fetch_game_price_overview(id=id)
@@ -59,3 +62,14 @@ async def price_overview_embed(id: str) -> discord.Embed:
         text='Powered by ITAD'
     )
     return embed
+
+
+async def deals_list_embed(sort: str) -> List[discord.Embed]:
+    data = await api_calls.fetch_deals(sort)
+    ids = [item['id'] for item in data['list']]
+    embeds = []
+    for id in ids:
+        embed = await price_overview_embed(id)
+        embeds.append(embed)
+        await asyncio.sleep(1)  # Rate limit to once per second
+    return embeds

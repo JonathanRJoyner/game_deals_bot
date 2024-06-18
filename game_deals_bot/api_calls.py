@@ -12,8 +12,27 @@ info_base_url = 'https://api.isthereanydeal.com/games/info/v2'
 price_base_url = 'https://api.isthereanydeal.com/games/prices/v2'
 price_overview_base_url = 'https://api.isthereanydeal.com/games/overview/v2'
 history_url = 'https://api.isthereanydeal.com/games/history/v2'
+deal_url = 'https://api.isthereanydeal.com/deals/v2'
 
 params = {'key': ITAD_KEY}
+
+sort_values = {
+    'Trending': '-trending',
+    'Newest deals': '-time',
+    'Highest price cut': '-cut',
+    'Lowest price': 'price',
+    'Expiring soon': 'expiry',
+    'Release date': '-release-date',
+    'Most popular': 'rank',
+    'Most waitlisted': '-waitlisted',
+    'Most collected': '-collected',
+    'Players on Steam': '-steam-players',
+    'Steam reviews': '-steam-reviews',
+    'Steam reviews count': '-steam-reviews-count',
+    'Opencritic score': '-opencritic',
+    'Metacritic score': '-metacritic',
+    'Metacritic user score': '-metacritic-user',
+}
 
 async def api_call(url, params, body = None, method="GET"):
     async with aiohttp.ClientSession() as session:
@@ -61,6 +80,16 @@ async def fetch_price_history(id: str) -> dict:
     params['id'] = id
     resp = await api_call(
         history_url,
+        params=params
+    )
+    return resp
+
+
+async def fetch_deals(sort: str) -> dict:
+    params['sort'] = sort
+    params['limit'] = 10
+    resp = await api_call(
+        deal_url,
         params=params
     )
     return resp

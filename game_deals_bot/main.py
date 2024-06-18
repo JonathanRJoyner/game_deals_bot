@@ -1,4 +1,5 @@
 import discord
+from discord.ext import pages
 import api_calls as api_calls
 from database import fetch_alerts, delete_alert_row
 import ui.embeds as embeds
@@ -61,6 +62,11 @@ async def get_game_title(ctx: discord.AutocompleteContext):
   return options
 
 
+async def sort_options(ctx: discord.AutocompleteContext):
+   return [discord.OptionChoice(name=name, value=value) for name, value 
+           in api_calls.sort_values.items()]
+
+
 async def get_alerts(ctx: discord.AutocompleteContext):
     guild_id = str(ctx.interaction.guild_id)
     alerts = await fetch_alerts(guild_id)
@@ -85,9 +91,18 @@ async def price(
 
   embed = await embeds.price_overview_embed(game_id)
   
-  
   view = await views.price_overview_view(ctx.interaction, game_id, game_title)
   await ctx.respond(embed=embed, view=view)
+
+
+@bot.slash_command(name="deals")
+async def deals(
+  ctx: discord.ApplicationContext,
+  sort_by: discord.Option(str, autocomplete=discord.utils.basic_autocomplete(sort_options)) # type: ignore
+):
+  await ctx.response.defer()
+  embed_list = await embeds.deals_list_embed(sort_by)
+  await pages.Paginator(pages=embed_list).respond(ctx.interaction)
 
 
 @bot.slash_command(name="delete_alert")
