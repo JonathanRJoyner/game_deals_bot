@@ -18,8 +18,10 @@ async def price_overview_embed(id: str) -> discord.Embed:
     game_url = game_info.urls.game if game_info.urls else None
 
     # Convert expiry and timestamp to Unix timestamps
-    current_expiry_unix = int(prices[0].current.expiry.timestamp()) if prices[0].current.expiry else None
-    lowest_timestamp_unix = int(prices[0].lowest.timestamp.timestamp()) if prices[0].lowest.timestamp else None
+    lowest = prices[0].lowest
+    current = prices[0].current
+    current_expiry_unix = int(prices[0].current.expiry.timestamp()) if current and current.expiry else None
+    lowest_timestamp_unix = int(prices[0].lowest.timestamp.timestamp()) if lowest and lowest.timestamp else None
 
     embed = discord.Embed(
         title=f'{game_info.title}',
@@ -32,28 +34,30 @@ async def price_overview_embed(id: str) -> discord.Embed:
 
     if prices:
         # Current Prices Field
-        current_expiry_unix = f'<t:{current_expiry_unix}:R>' if current_expiry_unix else '`N/A`'
-        embed.add_field(
-            name='Current', 
-            value=dedent(f'''
-                Price: `{prices[0].current.price.amount} {prices[0].current.price.currency}`
-                Discount: `-{prices[0].current.cut}%`
-                Shop: [{prices[0].current.shop.name}]({prices[0].current.url})
-                Expires: {current_expiry_unix}
-            '''),
-        )
+        if current:
+            current_expiry_unix = f'<t:{current_expiry_unix}:R>' if current_expiry_unix else '`N/A`'
+            embed.add_field(
+                name='Current', 
+                value=dedent(f'''
+                    Price: `{prices[0].current.price.amount} {prices[0].current.price.currency}`
+                    Discount: `-{prices[0].current.cut}%`
+                    Shop: [{prices[0].current.shop.name}]({prices[0].current.url})
+                    Expires: {current_expiry_unix}
+                '''),
+            )
 
         # Lowest Prices Field
-        lowest_timestamp_unix = f'<t:{lowest_timestamp_unix}:R>' if lowest_timestamp_unix else '`N/A`'
-        embed.add_field(
-            name='Lowest', 
-            value=dedent(f'''
-                Price: `{prices[0].lowest.price.amount} {prices[0].lowest.price.currency}`
-                Discount: `-{prices[0].lowest.cut}%`
-                Shop: `{prices[0].lowest.shop.name}`
-                Expired: {lowest_timestamp_unix}
-            ''')
-        )
+        if lowest:
+            lowest_timestamp_unix = f'<t:{lowest_timestamp_unix}:R>' if lowest_timestamp_unix else '`N/A`'
+            embed.add_field(
+                name='Lowest', 
+                value=dedent(f'''
+                    Price: `{prices[0].lowest.price.amount} {prices[0].lowest.price.currency}`
+                    Discount: `-{prices[0].lowest.cut}%`
+                    Shop: `{prices[0].lowest.shop.name}`
+                    Expired: {lowest_timestamp_unix}
+                ''')
+            )
 
 
     # Footer

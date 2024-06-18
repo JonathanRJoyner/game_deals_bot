@@ -9,6 +9,7 @@ import bot_tasks
 import os
 import threading
 from server import run_server
+from database import insert_alert
 
 
 load_dotenv()
@@ -16,6 +17,7 @@ DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 SERVER_COUNT_CHANNEL = os.getenv('SERVER_COUNT_CHANNEL')
 TOPGG_API_TOKEN = os.getenv('TOPGG_API_TOKEN')
 LOG_CHANNEL_ID = os.getenv('LOG_CHANNEL_ID')
+DEBUG = os.getenv('DEBUG')
 
 # Initialize the bot
 bot = discord.AutoShardedBot()
@@ -37,9 +39,12 @@ if LOG_CHANNEL_ID:
 
 @bot.event
 async def on_ready():
+
   
   # Starting up tasks
-  bot_tasks.check_alerts.start(bot)
+  if not DEBUG:
+    bot_tasks.check_free_alerts.start(bot)
+    bot_tasks.check_alerts.start(bot)
   
   # Updating server count channel if it exists
   if SERVER_COUNT_CHANNEL:
@@ -121,6 +126,24 @@ async def delete_alert_command(
     ephemeral=True
   )
 
+
+@bot.slash_command(name="free_game_alert")
+async def free_game_alert(ctx: discord.ApplicationContext):
+  resp = await insert_alert(
+    user_id=ctx.user.id,
+    guild_id=ctx.guild.id,
+    channel_id=ctx.channel.id,
+    target_price=0,
+    game_id='free',
+    game_title='FREE GAME ALERT'
+  )
+
+  if resp.data:
+      await ctx.respond("Alert added successfully!", ephemeral=True)
+  else:
+      await ctx.respond("An error occured setting the alert.", ephemeral=True)
+
+   
 
 if __name__ == '__main__':
     # Start the Flask app in a separate thread and pass the bot instance to it

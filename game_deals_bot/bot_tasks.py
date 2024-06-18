@@ -1,10 +1,12 @@
 from database import fetch_rows_in_batches, delete_alert_row
 from discord.ext import tasks, commands
-from api_calls import fetch_game_price_overview
+from api_calls import fetch_game_price_overview, fetch_deals
 from ui.embeds import price_overview_embed
 import aiohttp
+from database import fetch_free_game_alerts
+import discord
 
-
+seen_ids = set()
 
 @tasks.loop(hours=1)
 async def check_alerts(bot: commands.Bot):
@@ -41,7 +43,40 @@ async def check_alerts(bot: commands.Bot):
 
                     # Deleting Row
                     await delete_alert_row(row_id)
-                    
+
+@tasks.loop(hours=1)
+async def check_free_alerts(bot: commands.Bot):
+    global seen_ids
+    
+    # Fetch the current deals
+    data = await fetch_deals('price')
+    current_ids = set(item['id'] for item in data['list'] if item['deal']['price']['amount'] == 0)
+
+    # If this is the first run, initialize seen_ids without comparison
+    if not seen_ids:
+        seen_ids = current_ids
+
+    else:
+        # Compare the current IDs with the previously seen IDs
+        new_ids = current_ids - seen_ids
+
+        # If there are new deals, create embeds
+        embeds = [discord.Embed(title='Free Games')]
+        for id in new_ids:
+            embed = await price_overview_embed(id)
+            embed.color = embed.color.red()
+            embeds.append(embed)
+            channels = await fetch_free_game_alerts()
+
+        # Sending embeds
+        for channel in channels:
+            channel_id = channel['channel_id']
+            channel = bot.get_channel(channel_id)
+            await channel.send(embeds=embeds)
+
+        # Update seen_ids with the current IDs
+        seen_ids.update(current_ids)
+
 
 @tasks.loop(hours=6)
 async def update_server_count(bot: commands.Bot, server_count_channel: int):

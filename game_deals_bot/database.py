@@ -50,6 +50,11 @@ async def fetch_alerts(guild_id: str):
     return response.data
 
 
+async def fetch_free_game_alerts():
+    response = await asyncio.to_thread(supabase.from_('alerts').select('channel_id').eq('game_id', 'free').execute)
+    return response.data
+
+
 async def count_alerts_for_guild(guild_id: int) -> int:
     response = await asyncio.to_thread(supabase.table('alerts').select('id').eq('guild_id', guild_id).execute)
     return len(response.data)

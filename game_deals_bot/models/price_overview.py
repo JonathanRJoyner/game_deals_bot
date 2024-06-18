@@ -87,27 +87,34 @@ async def from_json(data: dict) -> Tuple[List[PriceData], List[Bundle]]:
 
     prices = []
     for price in data['prices']:
-        current_expiry = datetime.fromisoformat(price['current']['expiry']) if price['current']['expiry'] else None
-        current = Current(
-            shop=Shop(**price['current']['shop']),
-            price=Price(**price['current']['price']),
-            regular=Price(**price['current']['regular']),
-            cut=price['current']['cut'],
-            voucher=price['current']['voucher'],
-            flag=price['current']['flag'],
-            drm=price['current']['drm'],
-            platforms=[Platform(**platform) for platform in price['current']['platforms']],
-            timestamp=datetime.fromisoformat(price['current']['timestamp']),
-            expiry=current_expiry,
-            url=price['current']['url']
-        )
-        lowest = Lowest(
-            shop=Shop(**price['lowest']['shop']),
-            price=Price(**price['lowest']['price']),
-            regular=Price(**price['lowest']['regular']),
-            cut=price['lowest']['cut'],
-            timestamp=datetime.fromisoformat(price['lowest']['timestamp'])
-        )
+
+        current = None
+        if price.get('current'):
+            current_expiry = datetime.fromisoformat(price['current']['expiry']) if price['current']['expiry'] else None
+            current = Current(
+                shop=Shop(**price['current']['shop']),
+                price=Price(**price['current']['price']),
+                regular=Price(**price['current']['regular']),
+                cut=price['current']['cut'],
+                voucher=price['current']['voucher'],
+                flag=price['current']['flag'],
+                drm=price['current']['drm'],
+                platforms=[Platform(**platform) for platform in price['current']['platforms']],
+                timestamp=datetime.fromisoformat(price['current']['timestamp']),
+                expiry=current_expiry,
+                url=price['current']['url']
+            )
+
+        lowest = None
+        if price.get('lowest'):
+            lowest = Lowest(
+                shop=Shop(**price['lowest']['shop']),
+                price=Price(**price['lowest']['price']),
+                regular=Price(**price['lowest']['regular']),
+                cut=price['lowest']['cut'],
+                timestamp=datetime.fromisoformat(price['lowest']['timestamp'])
+            )
+        
         price_data = PriceData(
             id=price['id'],
             current=current,
