@@ -27,8 +27,8 @@ async def history_graph(data: List[DealRecord]):
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
-    ax.step(timestamps, prices, where='post', linewidth=2.0, label='Deal Price', marker='o')
-    ax.step(timestamps, regular_prices, where='post', linewidth=2.0, label='Regular Price', linestyle='--')
+    ax.step(timestamps, prices, where='pre', linewidth=2.0, label='Deal Price', marker='o')
+    ax.step(timestamps, regular_prices, where='pre', linewidth=2.0, label='Regular Price', linestyle='--')
 
     # Set the x-axis to show dates within the last three months
     ax.set_xlim(start_date, end_date)
