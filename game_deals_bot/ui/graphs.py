@@ -4,20 +4,22 @@ import numpy as np
 import io
 from typing import List
 from models.price_history import DealRecord
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 import copy
+from dateutil.relativedelta import relativedelta
 
 async def history_graph(data: List[DealRecord]):
     plt.style.use('_mpl-gallery')
 
     # Filter to the latest 3 months
-    end_date = max(item.timestamp for item in data)
+    end_date = datetime.now()
     start_date = end_date - timedelta(days=90)
 
     # Add starting point
-    start_point = copy.deepcopy(data[0])
-    start_point.timestamp = start_date
-    data.append(start_point)
+    highest_timestamp = max(data, key=lambda x: x.timestamp)
+    end_point = copy.deepcopy(highest_timestamp)
+    end_point.timestamp = datetime.now()
+    data.append(end_point)
 
     # Prepare data for plotting
     timestamps = [item.timestamp for item in data]
