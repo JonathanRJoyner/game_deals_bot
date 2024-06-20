@@ -1,10 +1,12 @@
 from database import fetch_rows_in_batches, delete_alert_row
 from discord.ext import tasks, commands
-from api_calls import fetch_game_price_overview, fetch_deals
+from api_calls import fetch_game_price_overview, fetch_deals, fetch_price_history
 from ui.embeds import price_overview_embed
 import aiohttp
 from database import fetch_free_game_alerts
+from models import price_history
 import discord
+from datetime import datetime
 
 seen_ids = set()
 
@@ -59,11 +61,70 @@ async def check_alerts(bot: commands.Bot):
                         embed.color = discord.Color.red()
 
                         # Sending Alert
-                        status = await channel.send(embed=[header_embed, embed])
+                        status = await channel.send(embeds=[header_embed, embed])
 
                         # Deleting Row
                         if status:
                             await delete_alert_row(row_id)
+
+            elif alert_type == 'Price Drop Alert':
+                data = await fetch_price_history(game_id)
+                data = await price_history.from_json(data)
+                data = sorted(data, key=lambda x: x.timestamp)
+                today = datetime.now(data[-1].timestamp.tzinfo).date()
+                if data[-1].timestamp.date() == today:
+                    price_today =  data[-1].deal.price.amount
+                    previous_price = next(
+                        (record.deal.price.amount for record in 
+                         data if record.timestamp.date() != today), 
+                         None
+                    )
+
+                    if price_today < previous_price:
+                        channel_id = row['channel_id']
+                        channel = bot.get_channel(channel_id)
+
+                        header_embed = discord.Embed(
+                            title='__Price Drop Alert__',
+                            color = discord.Color.red()
+                        )
+                        embed = await price_overview_embed(game_id)
+                        embed.color = discord.Color.red()
+
+                        # Sending Alert
+                        status = await channel.send(embeds=[header_embed, embed])
+                        # Deleting Row
+                        if status:
+                            await delete_alert_row(row_id)
+
+                    
+            elif alert_type == '3 Month Low Price Alert':
+                data = await fetch_price_history(game_id)
+                data = await price_history.from_json(data)
+                data = sorted(data, key=lambda x: x.timestamp)
+                today = datetime.now(data[-1].timestamp.tzinfo).date()
+                if data[-1].timestamp.date() == today:
+                    price_today =  data[-1].deal.price.amount
+                    all_prices = [record.deal.price.amount for record in data]
+
+                    if price_today <= min(all_prices):
+                        channel_id = row['channel_id']
+                        channel = bot.get_channel(channel_id)
+
+                        header_embed = discord.Embed(
+                            title='__3 Month Low Price Alert__',
+                            color = discord.Color.red()
+                        )
+                        embed = await price_overview_embed(game_id)
+                        embed.color = discord.Color.red()
+
+                        # Sending Alert
+                        status = await channel.send(embeds=[header_embed, embed])
+                        # Deleting Row
+                        if status:
+                            await delete_alert_row(row_id)
+
+                    
 
 
 @tasks.loop(hours=6)
@@ -98,7 +159,7 @@ async def check_free_alerts(bot: commands.Bot):
 
         # Update seen_ids with the current IDs
         seen_ids.update(current_ids)
-    
+
 
 @tasks.loop(hours=6)
 async def update_server_count(bot: commands.Bot, server_count_channel: int):
@@ -128,4 +189,3 @@ async def update_top_gg_server_count(bot: commands, topgg_api_token: str):
                 print("Successfully updated server count on top.gg")
             else:
                 print(f"Failed to update server count on top.gg: {response.status}")
-                

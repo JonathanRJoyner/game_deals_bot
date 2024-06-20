@@ -156,7 +156,7 @@ alert_type_dict= [
     '3 Month Low Price Alert'
 ]
 
-@bot.slash_command(name="set_price_alert", guild_ids = [1059556972871028868])
+@bot.slash_command(name="set_price_alert")
 async def set_price_alert(
 	ctx: discord.ApplicationContext,
 	alert_type: discord.Option(str, autocomplete=discord.utils.basic_autocomplete(alert_types)), # type: ignore
