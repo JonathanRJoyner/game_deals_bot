@@ -16,7 +16,8 @@ async def insert_alert(
         channel_id: int, 
         target_price: float, 
         game_id: str,
-        game_title
+        game_title: str,
+        alert_type: str
 ):
     data = {
         "user_id": user_id,
@@ -24,7 +25,8 @@ async def insert_alert(
         "target_price": target_price,
         "game_id": game_id,
         "channel_id": channel_id,
-        "game_title": game_title
+        "game_title": game_title,
+        "alert_type": alert_type
     }
     response = await asyncio.to_thread(supabase.table('alerts').insert(data).execute)
     return response

@@ -8,7 +8,7 @@ import discord
 
 seen_ids = set()
 
-@tasks.loop(hours=1)
+@tasks.loop(hours=12)
 async def check_alerts(bot: commands.Bot):
     async for batch in fetch_rows_in_batches():
 
@@ -21,30 +21,52 @@ async def check_alerts(bot: commands.Bot):
             game_id = row['game_id']
             target_price = row['target_price']
             row_id = row['id']
+            alert_type = row['alert_type']
 
-            for price in response['prices']:
-                if price['id'] == game_id and price['current']['price']['amount'] < target_price:
-                    channel_id = row['channel_id']
-                    channel = bot.get_channel(channel_id)
-                    embed = await price_overview_embed(game_id)
+            if alert_type == 'Price Alert':
 
-                    # Modifying Embed
-                    embed.insert_field_at(
-                        index=0,
-                        name='__**Alert Target Price**__',
-                        value=f'{target_price}',
-                        inline=False
-                    )
-                    embed.color = embed.color.red()
-                    embed.title = f'Price Alert: {embed.title}'
+                for price in response['prices']:
 
-                    # Sending Alert
-                    await channel.send(embed=embed)
+                    if price['id'] == game_id and price['current']['price']['amount'] < target_price:
+                        channel_id = row['channel_id']
+                        channel = bot.get_channel(channel_id)
+                        header_embed = discord.Embed(
+                            title='__Price Alert__', 
+                            color=discord.Color.red()
+                        )
+                        embed = await price_overview_embed(game_id)
+                        embed.color = discord.Color.red()
 
-                    # Deleting Row
-                    await delete_alert_row(row_id)
+                        # Sending Alert
+                        status = await channel.send(embeds=[header_embed, embed])
 
-@tasks.loop(hours=1)
+                        # Deleting Row
+                        if status:
+                            await delete_alert_row(row_id)
+            
+            elif alert_type == 'All Time Low Price Alert':
+                for price in response['prices']:
+
+                    if price['id'] == game_id and price['lowest']['price']['amount'] >= price['current']['price']['amount']:
+                        channel_id = row['channel_id']
+                        channel = bot.get_channel(channel_id)
+
+                        header_embed = discord.Embed(
+                            title='__All Time Low Price Alert__',
+                            color = discord.Color.red()
+                        )
+                        embed = await price_overview_embed(game_id)
+                        embed.color = discord.Color.red()
+
+                        # Sending Alert
+                        status = await channel.send(embed=[header_embed, embed])
+
+                        # Deleting Row
+                        if status:
+                            await delete_alert_row(row_id)
+
+
+@tasks.loop(hours=6)
 async def check_free_alerts(bot: commands.Bot):
     global seen_ids
     
@@ -76,16 +98,12 @@ async def check_free_alerts(bot: commands.Bot):
 
         # Update seen_ids with the current IDs
         seen_ids.update(current_ids)
-
+    
 
 @tasks.loop(hours=6)
 async def update_server_count(bot: commands.Bot, server_count_channel: int):
     server_count_channel_id = int(server_count_channel)
     server_count_channel = bot.get_channel(server_count_channel_id)
-    if server_count_channel is None:
-        print(f"Channel with ID {server_count_channel_id} not found.")
-        return
-    
     server_count = len(bot.guilds)
     await server_count_channel.edit(name=f"SERVER COUNT: {server_count}")
 

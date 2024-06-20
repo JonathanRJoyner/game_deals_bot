@@ -37,12 +37,13 @@ class PriceAlertModal(Modal):
         else:    
             # Insert data into the database with game_id
             response = await insert_alert(
-                user_id, 
-                guild_id, 
-                channel_id, 
-                target_price, 
-                self.game_id,
-                self.game_title
+                user_id=user_id, 
+                guild_id=guild_id, 
+                channel_id=channel_id, 
+                target_price=target_price, 
+                game_id=self.game_id,
+                game_title=self.game_title,
+                alert_type='Price Alert'
             )
             
             if response.data:

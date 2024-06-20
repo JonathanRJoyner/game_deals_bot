@@ -10,6 +10,7 @@ import os
 import threading
 from server import run_server
 from database import insert_alert
+from ui.modals import PriceAlertModal
 
 
 load_dotenv()
@@ -40,7 +41,6 @@ if LOG_CHANNEL_ID:
 @bot.event
 async def on_ready():
 
-  
   # Starting up tasks
   if not DEBUG:
     bot_tasks.check_free_alerts.start(bot)
@@ -72,13 +72,17 @@ async def sort_options(ctx: discord.AutocompleteContext):
            in api_calls.sort_values.items()]
 
 
+async def alert_types(ctx: discord.AutocompleteContext):
+   return [discord.OptionChoice(name=name) for name in alert_type_dict]
+
+
 async def get_alerts(ctx: discord.AutocompleteContext):
     guild_id = str(ctx.interaction.guild_id)
     alerts = await fetch_alerts(guild_id)
     
     options = [
         discord.OptionChoice(
-          name=f"Title: {alert['game_title']} Target: {alert['target_price']}"[0:100], 
+          name=f"Title: {alert['game_title']} | Type: {alert['alert_type']} | Target: {alert['target_price']}"[0:100], 
           value=f"{alert['id']}_{alert['game_title']}"
         )
         for alert in alerts
@@ -134,8 +138,9 @@ async def free_game_alert(ctx: discord.ApplicationContext):
     guild_id=ctx.guild.id,
     channel_id=ctx.channel.id,
     target_price=0,
-    game_id='free',
-    game_title='FREE GAME ALERT'
+    game_id=None,
+    game_title=None,
+    alert_type='Free Game Alert'
   )
 
   if resp.data:
@@ -143,12 +148,50 @@ async def free_game_alert(ctx: discord.ApplicationContext):
   else:
       await ctx.respond("An error occured setting the alert.", ephemeral=True)
 
-   
+
+alert_type_dict= [
+    'Price Alert',
+    'Price Drop Alert',
+    'All Time Low Price Alert',
+    '3 Month Low Price Alert'
+]
+
+@bot.slash_command(name="set_price_alert", guild_ids = [1059556972871028868])
+async def set_price_alert(
+	ctx: discord.ApplicationContext,
+	alert_type: discord.Option(str, autocomplete=discord.utils.basic_autocomplete(alert_types)), # type: ignore
+    game_title: discord.Option(str, autocomplete=discord.utils.basic_autocomplete(get_game_title)) # type: ignore
+):
+	game_id = game_title.split('_')[1]
+	game_title = game_title.split('_')[0]
+	if alert_type == 'Price Alert':
+		await ctx.interaction.response.send_modal(
+            PriceAlertModal(game_id, game_title)
+        )
+
+	else:
+		resp = await insert_alert(
+			user_id=ctx.user.id,
+			guild_id=ctx.guild.id,
+			channel_id=ctx.channel.id,
+			target_price=0,
+			game_id=game_id,
+			game_title=game_title,
+			alert_type=alert_type
+		)
+
+		if resp.data:
+			await ctx.respond(f"{alert_type} for {game_title} added successfully!", ephemeral=True)
+		else:
+			await ctx.respond("An error occured setting the alert.", ephemeral=True)
+
+
 
 if __name__ == '__main__':
     # Start the Flask app in a separate thread and pass the bot instance to it
-    flask_thread = threading.Thread(target=run_server, args=(bot,))
-    flask_thread.start()
+	if TOPGG_API_TOKEN: 
+		flask_thread = threading.Thread(target=run_server, args=(bot,))
+		flask_thread.start()
 
     # Start the bot
-    bot.run(DISCORD_BOT_TOKEN)
+	bot.run(DISCORD_BOT_TOKEN)
