@@ -35,7 +35,9 @@ async def insert_alert(
 async def fetch_rows_in_batches(batch_size: int = 5):
     offset = 0
     while True:
-        response = await asyncio.to_thread(supabase.table('alerts').select('*').range(offset, offset + batch_size - 1).execute)
+        response = await asyncio.to_thread(
+            supabase.table('alerts').select('*').range(offset, offset + batch_size - 1).execute
+        )
         if response.data:
             yield response.data
             offset += batch_size
