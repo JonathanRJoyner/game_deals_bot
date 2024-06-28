@@ -94,7 +94,7 @@ async def price(
 	ctx: discord.ApplicationContext,
 	game_title: discord.Option(
     	str,
-        description="Select a game title.",
+        description="Select a game title from the listed options.",
     	autocomplete=discord.utils.basic_autocomplete(get_game_title)
 	)# type: ignore
 ):
@@ -112,7 +112,7 @@ async def deals(
   ctx: discord.ApplicationContext,
     sort_by: discord.Option(
         str,
-        description="Choose a sorting method.",
+        description="Choose a sorting method from the listed options.",
         autocomplete=discord.utils.basic_autocomplete(sort_options)
     )  # type: ignore
 ):
@@ -126,7 +126,7 @@ async def delete_alert_command(
     ctx: discord.ApplicationContext,
     alert: discord.Option(
         str,
-        description="Select the alert to delete.",
+        description="Select the alert to delete from the listed options.",
         autocomplete=discord.utils.basic_autocomplete(get_alerts)
     )  # type: ignore
 ):
@@ -172,12 +172,12 @@ async def set_price_alert(
 	ctx: discord.ApplicationContext,
     alert_type: discord.Option(
         str,
-        description="Choose the type of price alert.",
+        description="Choose the type of price alert from the listed options.",
         autocomplete=discord.utils.basic_autocomplete(alert_types)
     ),  # type: ignore
     game_title: discord.Option(
         str,
-        description="Select a game title.",
+        description="Select a game title from the listed options.",
         autocomplete=discord.utils.basic_autocomplete(get_game_title)
     )  # type: ignore
 ):

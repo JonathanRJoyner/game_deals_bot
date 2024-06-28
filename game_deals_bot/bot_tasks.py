@@ -166,7 +166,10 @@ async def update_server_count(bot: commands.Bot, server_count_channel: int):
     server_count_channel_id = int(server_count_channel)
     server_count_channel = bot.get_channel(server_count_channel_id)
     server_count = len(bot.guilds)
-    await server_count_channel.edit(name=f"SERVER COUNT: {server_count}")
+    shard_count = int(bot.shard_count)
+    await server_count_channel.edit(
+        name=f"SERVERS: {server_count} SHARDS: {shard_count}"
+    )
 
 
 @tasks.loop(hours=6)
@@ -181,7 +184,6 @@ async def update_top_gg_server_count(bot: commands, topgg_api_token: str):
         "server_count": int(len(bot.guilds)),
         "shard_count": int(bot.shard_count),
     }
-    print(payload)
 
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers=headers, json=payload) as response:
