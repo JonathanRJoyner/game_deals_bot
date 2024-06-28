@@ -40,11 +40,16 @@ async def check_alerts(bot: commands.Bot):
                         embed.color = discord.Color.red()
 
                         # Sending Alert
-                        status = await channel.send(embeds=[header_embed, embed])
+                        try:
+                            status = await channel.send(embeds=[header_embed, embed])
 
-                        # Deleting Row
-                        if status:
-                            await delete_alert_row(row_id)
+                            # Deleting Row
+                            if status:
+                                await delete_alert_row(row_id)
+                        
+                        except Exception as e:
+                            print(f"Failed to send message: {e}")
+                            continue
             
             elif alert_type == 'All Time Low Price Alert':
                 for price in response['prices']:
@@ -61,11 +66,17 @@ async def check_alerts(bot: commands.Bot):
                         embed.color = discord.Color.red()
 
                         # Sending Alert
-                        status = await channel.send(embeds=[header_embed, embed])
+                        try:
+                            status = await channel.send(embeds=[header_embed, embed])
 
-                        # Deleting Row
-                        if status:
-                            await delete_alert_row(row_id)
+                            # Deleting Row
+                            if status:
+                                await delete_alert_row(row_id)
+                        
+                        except Exception as e:
+                            print(f"Failed to send message: {e}")
+                            continue
+            
 
             elif alert_type == 'Price Drop Alert':
                 data = await fetch_price_history(game_id)
@@ -92,10 +103,17 @@ async def check_alerts(bot: commands.Bot):
                         embed.color = discord.Color.red()
 
                         # Sending Alert
-                        status = await channel.send(embeds=[header_embed, embed])
-                        # Deleting Row
-                        if status:
-                            await delete_alert_row(row_id)
+                        try:
+                            status = await channel.send(embeds=[header_embed, embed])
+
+                            # Deleting Row
+                            if status:
+                                await delete_alert_row(row_id)
+                        
+                        except Exception as e:
+                            print(f"Failed to send message: {e}")
+                            continue
+            
 
                     
             elif alert_type == '3 Month Low Price Alert':
@@ -117,12 +135,19 @@ async def check_alerts(bot: commands.Bot):
                         )
                         embed = await price_overview_embed(game_id)
                         embed.color = discord.Color.red()
-
+                        
                         # Sending Alert
-                        status = await channel.send(embeds=[header_embed, embed])
-                        # Deleting Row
-                        if status:
-                            await delete_alert_row(row_id)
+                        try:
+                            status = await channel.send(embeds=[header_embed, embed])
+
+                            # Deleting Row
+                            if status:
+                                await delete_alert_row(row_id)
+                        
+                        except Exception as e:
+                            print(f"Failed to send message: {e}")
+                            continue
+            
 
                     
 
