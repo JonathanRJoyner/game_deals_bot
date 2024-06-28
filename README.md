@@ -4,9 +4,6 @@
 <a href="https://top.gg/bot/1028073862597967932">
   <img src="https://top.gg/api/widget/servers/1028073862597967932.svg?noavatar=true">
 </a>
-<a href="https://top.gg/bot/1028073862597967932">
-  <img src="https://top.gg/api/widget/upvotes/1028073862597967932.svg?noavatar=true">
-</a>
 </p>
 
 # Game Deals Bot
@@ -57,10 +54,11 @@ Buttons can be used to give more information on any given game.
 
 ## Built With
 
-This bot relies on several other libraries:
+This bot relies on several other libraries and data sources:
 
  - [Py-cord](https://github.com/Pycord-Development/pycord) - Discord API wrapper
- - [Supabase](https://github.com/supabase/supabase) - an open source Firebase alternative
+ - [Supabase](https://github.com/supabase/supabase) - An open source Firebase alternative
+ - [Is There Any Deal](https://isthereanydeal.com/) - A game price tracking website with a great API
 
 ## Deployment
 
