@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 import bot_tasks
 import os
 import threading
-from server import run_server
 from database import insert_alert
 from ui.modals import PriceAlertModal
 
@@ -90,10 +89,14 @@ async def get_alerts(ctx: discord.AutocompleteContext):
     return options
 
 
-@bot.slash_command(name="price")
+@bot.slash_command(name="price", description="Get the current price overview of a game.")
 async def price(
-  ctx: discord.ApplicationContext,
-  game_title: discord.Option(str, autocomplete=discord.utils.basic_autocomplete(get_game_title)) # type: ignore
+	ctx: discord.ApplicationContext,
+	game_title: discord.Option(
+    	str,
+        description="Select a game title.",
+    	autocomplete=discord.utils.basic_autocomplete(get_game_title)
+	)# type: ignore
 ):
   game_id = game_title.split('_')[1]
   game_title = game_title.split('_')[0]
@@ -104,20 +107,28 @@ async def price(
   await ctx.respond(embed=embed, view=view)
 
 
-@bot.slash_command(name="deals")
+@bot.slash_command(name="deals",  description="View the latest game deals sorted by various options.")
 async def deals(
   ctx: discord.ApplicationContext,
-  sort_by: discord.Option(str, autocomplete=discord.utils.basic_autocomplete(sort_options)) # type: ignore
+    sort_by: discord.Option(
+        str,
+        description="Choose a sorting method.",
+        autocomplete=discord.utils.basic_autocomplete(sort_options)
+    )  # type: ignore
 ):
   await ctx.response.defer()
   embed_list = await embeds.deals_list_embed(sort_by)
   await pages.Paginator(pages=embed_list).respond(ctx.interaction)
 
 
-@bot.slash_command(name="delete_alert")
+@bot.slash_command(name="delete_alert", description="Delete a price alert from the server.")
 async def delete_alert_command(
     ctx: discord.ApplicationContext,
-    alert: discord.Option(str, autocomplete=discord.utils.basic_autocomplete(get_alerts)) # type: ignore
+    alert: discord.Option(
+        str,
+        description="Select the alert to delete.",
+        autocomplete=discord.utils.basic_autocomplete(get_alerts)
+    )  # type: ignore
 ):
   alert_id = alert.split('_')[0]
   alert_title = alert.split('_')[1]
@@ -131,7 +142,7 @@ async def delete_alert_command(
   )
 
 
-@bot.slash_command(name="free_game_alert")
+@bot.slash_command(name="free_game_alert", description="Set an alert for when any game becomes free.")
 async def free_game_alert(ctx: discord.ApplicationContext):
   resp = await insert_alert(
     user_id=ctx.user.id,
@@ -156,11 +167,19 @@ alert_type_dict= [
     '3 Month Low Price Alert'
 ]
 
-@bot.slash_command(name="set_price_alert")
+@bot.slash_command(name="set_price_alert", description="Set various types of price alerts for a specific game.")
 async def set_price_alert(
 	ctx: discord.ApplicationContext,
-	alert_type: discord.Option(str, autocomplete=discord.utils.basic_autocomplete(alert_types)), # type: ignore
-    game_title: discord.Option(str, autocomplete=discord.utils.basic_autocomplete(get_game_title)) # type: ignore
+    alert_type: discord.Option(
+        str,
+        description="Choose the type of price alert.",
+        autocomplete=discord.utils.basic_autocomplete(alert_types)
+    ),  # type: ignore
+    game_title: discord.Option(
+        str,
+        description="Select a game title.",
+        autocomplete=discord.utils.basic_autocomplete(get_game_title)
+    )  # type: ignore
 ):
 	game_id = game_title.split('_')[1]
 	game_title = game_title.split('_')[0]
@@ -188,10 +207,4 @@ async def set_price_alert(
 
 
 if __name__ == '__main__':
-    # Start the Flask app in a separate thread and pass the bot instance to it
-	if TOPGG_API_TOKEN: 
-		flask_thread = threading.Thread(target=run_server, args=(bot,))
-		flask_thread.start()
-
-    # Start the bot
 	bot.run(DISCORD_BOT_TOKEN)
