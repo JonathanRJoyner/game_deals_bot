@@ -1,1 +1,1 @@
-web: python game_deals_bot/main.py
+worker: python game_deals_bot/main.py
